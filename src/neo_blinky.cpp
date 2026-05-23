@@ -1,26 +1,33 @@
 #include "neo_blinky.h"
+#include "global.h"
 
-
-void neo_blinky(void *pvParameters){
-
+void neo_blinky(void *pvParameters)
+{
     Adafruit_NeoPixel strip(LED_COUNT, NEO_PIN, NEO_GRB + NEO_KHZ800);
     strip.begin();
-    // Set all pixels to off to start
     strip.clear();
     strip.show();
 
-    while(1) {                          
-        strip.setPixelColor(0, strip.Color(255, 0, 0)); // Set pixel 0 to red
-        strip.show(); // Update the strip
+    SensorData data;
 
-        // Wait for 500 milliseconds
-        vTaskDelay(500);
+    while (1)
+    {
+        if (xQueueReceive(queueNeo, &data, portMAX_DELAY))
+        {
+            if (data.hum < 40)
+            {
+                strip.setPixelColor(0, strip.Color(0, 0, 255)); // Blue
+            }
+            else if (data.hum < 70)
+            {
+                strip.setPixelColor(0, strip.Color(0, 255, 0)); // Green
+            }
+            else
+            {
+                strip.setPixelColor(0, strip.Color(255, 0, 0)); // Red
+            }
 
-        // Set the pixel to off
-        strip.setPixelColor(0, strip.Color(0, 0, 0)); // Turn pixel 0 off
-        strip.show(); // Update the strip
-
-        // Wait for another 500 milliseconds
-        vTaskDelay(500);
+            strip.show();
+        }
     }
 }
