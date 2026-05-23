@@ -1,4 +1,5 @@
 #include "task_wifi.h"
+#include "global.h"
 
 void startAP()
 {
