@@ -1,4 +1,5 @@
 #include "temp_humi_monitor.h"
+#include "global.h"
 DHT20 dht20;
 LiquidCrystal_I2C lcd(33,16,2);
 
@@ -28,9 +29,14 @@ void temp_humi_monitor(void *pvParameters){
         }
 
         //Update global variables for temperature and humidity
-        glob_temperature = temperature;
-        glob_humidity = humidity;
-
+        SensorData data;
+        data.temp = temperature;
+        data.hum = humidity;
+        xQueueSend(queueLED, &data, portMAX_DELAY);
+        xQueueSend(queueNeo, &data, portMAX_DELAY);
+        xQueueSend(dataQueue, &data, portMAX_DELAY);
+        xQueueSend(queueCoreIoT, &data, portMAX_DELAY);
+        xQueueSend(queueML, &data, portMAX_DELAY);
         // Print the results
         
         Serial.print("Humidity: ");
@@ -42,4 +48,33 @@ void temp_humi_monitor(void *pvParameters){
         vTaskDelay(5000);
     }
     
+}
+
+void lcd_task(void *pvParameters) {
+    SensorData data;
+    lcd.begin();
+    lcd.backlight();
+    while(1) {
+        if (xQueueReceive(dataQueue, &data, portMAX_DELAY)) {
+            lcd.clear();
+            if (data.temp < 35 && data.hum < 70) {
+                lcd.setCursor(0,0);
+                lcd.print("Normal");
+            }
+            else if (data.temp < 40) {
+                lcd.setCursor(0,0);
+                lcd.print("Warning");
+            }
+            else {
+                lcd.setCursor(0,0);
+                lcd.print("CRITICAL");
+            }
+            
+            lcd.setCursor(0,1);
+            lcd.print("T: ");
+            lcd.print(data.temp);
+            lcd.print(" H: ");
+            lcd.print(data.hum);
+        }
+    }
 }
