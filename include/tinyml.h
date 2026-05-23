@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#include "my_dht_anomaly_model.h"
+#include "my_dht_anomaly_model.h" // Mô hình AI đã train
 #include "global.h"
 
 #include <TensorFlowLite_ESP32.h>
@@ -13,7 +13,7 @@
 #include "tensorflow/lite/micro/system_setup.h"
 #include "tensorflow/lite/schema/schema_generated.h"
 
-void setupTinyML();
-void tiny_ml_task(void *pvParameters);
+void setupTinyML();                     // Khởi tạo model, interpreter và cấp phát tensor arena
+void tiny_ml_task(void *pvParameters);  // Nhận semaphore → chuẩn hóa → inference → cập nhật kết quả
 
 #endif

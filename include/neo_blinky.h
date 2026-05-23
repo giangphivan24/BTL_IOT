@@ -2,13 +2,11 @@
 #define __NEO_BLINKY__
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
+#include "global.h"
 
+#define NEO_PIN 45   // Chân GPIO kết nối NeoPixel
+#define LED_COUNT 1  // Số lượng LED NeoPixel trên dải
 
-
-#define NEO_PIN 45
-#define LED_COUNT 1 
-
-void neo_blinky(void *pvParameters);
-
+void neo_blinky(void *pvParameters); // Đổi màu NeoPixel theo humidity và displayState
 
 #endif

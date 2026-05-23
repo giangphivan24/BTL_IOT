@@ -7,7 +7,8 @@
 #include <HTTPClient.h>
 #include "task_check_info.h"
 
-void CORE_IOT_sendata(String mode, String feed, String data);
-void CORE_IOT_reconnect();
+void CORE_IOT_sendata(String mode, String feed, String data); // Gửi dữ liệu lên CoreIoT (legacy)
+void CORE_IOT_reconnect();            // Kết nối lại MQTT nếu bị mất kết nối
+void coreiot_task(void *pvParameters); // Gửi telemetry định kỳ 10 giây lên CoreIoT
 
 #endif
