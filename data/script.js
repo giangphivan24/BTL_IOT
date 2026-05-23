@@ -36,10 +36,24 @@ function Send_Data(data) {
 }
 
 function onMessage(event) {
-    console.log("📩 Nhận:", event.data);
+    console.log("Nhận:", event.data);
+
     try {
         var data = JSON.parse(event.data);
-        // Có thể thêm xử lý riêng nếu cần (ví dụ cập nhật trạng thái)
+
+        if (data.soil_moisture !== undefined) {
+            console.log("Soil:", data.soil_moisture);
+            document.getElementById("soilValue").innerText = data.soil_moisture + "%";
+        }
+
+        if (data.pump !== undefined) {
+            document.getElementById("pumpStatus").innerText = data.pump;
+        }
+
+        if (data.soil_status !== undefined) {
+            document.getElementById("soilStatus").innerText = data.soil_status;
+        }
+
     } catch (e) {
         console.warn("Không phải JSON hợp lệ:", event.data);
     }
@@ -130,14 +144,12 @@ function toggleRelay(id) {
     const relay = relayList.find(r => r.id === id);
     if (relay) {
         relay.state = !relay.state;
+
         const relayJSON = JSON.stringify({
-            page: "device",
-            value: {
-                name: relay.name,
-                status: relay.state ? "ON" : "OFF",
-                gpio: relay.gpio
-            }
+            device: "pump",
+            action: relay.state ? "ON" : "OFF"
         });
+
         Send_Data(relayJSON);
         renderRelays();
     }
