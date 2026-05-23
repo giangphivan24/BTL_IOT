@@ -8,6 +8,11 @@ String CORE_IOT_TOKEN;
 String CORE_IOT_SERVER;
 String CORE_IOT_PORT;
 
+int soilPercent = 0;
+bool pumpOn = false;
+bool autoMode = true;
+String soilStatus = "UNKNOWN";
+
 String ssid = "ESP32-YOUR NETWORK HERE!!!";
 String password = "12345678";
 String wifi_ssid = "abcde";
