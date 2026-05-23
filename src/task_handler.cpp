@@ -1,61 +1,51 @@
-#include <task_handler.h>
+#include "task_handler.h"
+#include "global.h"
+#include "lcd_display.h"
+
+extern LiquidCrystal_I2C lcd;
 
 void handleWebSocketMessage(String message)
 {
-    Serial.println(message);
-    StaticJsonDocument<256> doc;
+    Serial.println("WS Received: " + message);
 
+    StaticJsonDocument<256> doc;
     DeserializationError error = deserializeJson(doc, message);
+
     if (error)
     {
-        Serial.println("❌ Lỗi parse JSON!");
+        Serial.println("JSON parse failed");
         return;
     }
-    JsonObject value = doc["value"];
-    if (doc["page"] == "device")
+
+    String device = doc["device"] | "";
+    String action = doc["action"] | "";
+    String value  = doc["value"]  | "";
+
+    // ===== Điều khiển máy bơm =====
+    if (device == "pump")
     {
-        if (!value.containsKey("gpio") || !value.containsKey("status"))
+        if (action == "ON")
         {
-            Serial.println("⚠️ JSON thiếu thông tin gpio hoặc status");
-            return;
+            digitalWrite(PUMP_PIN, HIGH);
+            Serial.println("Pump ON Manual");
         }
-
-        int gpio = value["gpio"];
-        String status = value["status"].as<String>();
-
-        Serial.printf("⚙️ Điều khiển GPIO %d → %s\n", gpio, status.c_str());
-        pinMode(gpio, OUTPUT);
-        if (status.equalsIgnoreCase("ON"))
+        else if (action == "OFF")
         {
-            digitalWrite(gpio, HIGH);
-            Serial.printf("🔆 GPIO %d ON\n", gpio);
-        }
-        else if (status.equalsIgnoreCase("OFF"))
-        {
-            digitalWrite(gpio, LOW);
-            Serial.printf("💤 GPIO %d OFF\n", gpio);
+            digitalWrite(PUMP_PIN, LOW);
+            Serial.println("Pump OFF Manual");
         }
     }
-    else if (doc["page"] == "setting")
+
+    // ===== Điều khiển LCD =====
+    if (device == "lcd")
     {
-        String WIFI_SSID = doc["value"]["ssid"].as<String>();
-        String WIFI_PASS = doc["value"]["password"].as<String>();
-        String CORE_IOT_TOKEN = doc["value"]["token"].as<String>();
-        String CORE_IOT_SERVER = doc["value"]["server"].as<String>();
-        String CORE_IOT_PORT = doc["value"]["port"].as<String>();
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print(value.substring(0, 16));
 
-        Serial.println("📥 Nhận cấu hình từ WebSocket:");
-        Serial.println("SSID: " + WIFI_SSID);
-        Serial.println("PASS: " + WIFI_PASS);
-        Serial.println("TOKEN: " + CORE_IOT_TOKEN);
-        Serial.println("SERVER: " + CORE_IOT_SERVER);
-        Serial.println("PORT: " + CORE_IOT_PORT);
+        lcd.setCursor(0, 1);
+        lcd.print("From Webserver");
 
-        // 👉 Gọi hàm lưu cấu hình
-        Save_info_File(WIFI_SSID, WIFI_PASS, CORE_IOT_TOKEN, CORE_IOT_SERVER, CORE_IOT_PORT);
-
-        // Phản hồi lại client (tùy chọn)
-        String msg = "{\"status\":\"ok\",\"page\":\"setting_saved\"}";
-        ws.textAll(msg);
+        Serial.println("LCD Updated: " + value);
     }
 }
