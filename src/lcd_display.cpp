@@ -12,6 +12,7 @@ void lcd_display_task(void *pvParameters) {
     SystemState *state = (SystemState *)pvParameters;
     
     LiquidCrystal_I2C lcd(33, 16, 2); 
+    lcd.begin();
     lcd.backlight();
     lcd.setCursor(0, 0);
     lcd.print("BTL IOT - HCMUT "); // Màn hình khởi động
