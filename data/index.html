@@ -67,7 +67,24 @@
         <i class="fa-solid fa-plus"></i>
       </button>
     </div>
+    <div class="gauge-card">
+      <h2>🌱 Độ ẩm đất</h2>
+      <p id="soilValue">--%</p>
+    </div>
 
+    <div class="gauge-card">
+      <h2>🚰 Máy bơm</h2>
+      <p>Trạng thái: <span id="pumpStatus">--</span></p>
+      <p>Đất: <span id="soilStatus">--</span></p>
+
+      <button onclick='Send_Data(JSON.stringify({device:"pump", action:"ON"}))'>
+        Bật bơm
+      </button>
+
+      <button onclick='Send_Data(JSON.stringify({device:"pump", action:"OFF"}))'>
+        Tắt bơm
+      </button>
+    </div>
     <!-- THÔNG TIN -->
     <div id="info" class="section" style="display:none;">
       <header>
